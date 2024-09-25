@@ -1,0 +1,7 @@
+C:\Users\alisa\source\repos\pis1\pis1\bin\Debug\pis1.exe.config
+C:\Users\alisa\source\repos\pis1\pis1\bin\Debug\pis1.exe
+C:\Users\alisa\source\repos\pis1\pis1\bin\Debug\pis1.pdb
+C:\Users\alisa\source\repos\pis1\pis1\obj\Debug\pis1.csproj.AssemblyReference.cache
+C:\Users\alisa\source\repos\pis1\pis1\obj\Debug\pis1.csproj.CoreCompileInputs.cache
+C:\Users\alisa\source\repos\pis1\pis1\obj\Debug\pis1.exe
+C:\Users\alisa\source\repos\pis1\pis1\obj\Debug\pis1.pdb
