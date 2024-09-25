@@ -10,9 +10,16 @@ namespace pis1
     {
         static void Main(string[] args)
         {
-            string input = "2023.09.24 \"Ежемесячная стипендия\" 100000000";
-            Income res = Income.StrToIncome(input);
-            Console.WriteLine(res.ToString());
+            
+            string input = "2023.09.24 \"Ежемесячная стипендия\" 100000000; 2023.09.25 \"Премия\" 5000000";
+            
+            string[] entries = input.Split(';');
+
+            foreach (string entry in entries)
+            {
+                Console.WriteLine(entry.Trim().ToString());
+            }
+
             Console.ReadKey();
         }
     }

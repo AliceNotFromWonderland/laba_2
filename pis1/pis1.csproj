@@ -44,8 +44,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Income.cs" />
+    <Compile Include="OrganizationIncome.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TaxedIncome.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
