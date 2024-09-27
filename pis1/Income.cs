@@ -21,7 +21,7 @@ namespace pis1
             Amount = amount;
         }
 
-        public override string ToString()
+        public virtual string ToString()
         {
             return $"Дата: {Date:yyyy.MM.dd}, Источник: {Source}, Сумма: {Amount}";
         }       

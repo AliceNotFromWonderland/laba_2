@@ -22,5 +22,6 @@ namespace pis1
         {
             return $"{base.ToString()}, Организация: {OrganizationName}, Тип операции: {OperationType}";
         }
+
     }
 }
