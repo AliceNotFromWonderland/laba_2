@@ -14,9 +14,22 @@ namespace pis1
         {
             string input = "2023.09.24 \"Ежемесячная стипендия\" 100000000; " +
                            "2023.09.25 \"Премия\" 5000000 \"Газпром\" \"Начисление\"; " +
-                           "2023.09.26 \"Дополнительный доход\" 2000000 13.5";
+                           "2023.09.26 \"Дополнительный доход\" 2000000 13.5";          
 
-            List<Income> incomes = ProcessEntries(input);
+
+            // Тесты 
+            string input1 = "2023.09.24 \"Премия\" 1500000; " +
+                        "2023.09.25 \"Бонус\" 3000000;"; // полукорректный вход - одна из строк пустая
+
+            string input2 = "2023.09.24 \"Недостаточный доход\" -1000;"; // некорректный вход - отрицательное значение
+
+            string input3 = "2023.09.25 \"Премия\" 5000000 \"Некорректная\";"; // некорректный вход - не подходит ни одному формату (классу)
+
+            string input4 = ""; // пустая строка
+
+
+
+            List<Income> incomes = IncomeParser.ProcessEntries(input);
 
             foreach (var income in incomes)
             {
@@ -26,67 +39,5 @@ namespace pis1
             Console.ReadKey();
         }
 
-        public static List<Income> ProcessEntries(string input)
-        {
-            List<Income> incomes = new List<Income>();
-            string[] entries = input.Split(';');
-
-            foreach (string entry in entries)
-            {
-                if (string.IsNullOrWhiteSpace(entry))
-                {
-                    Console.WriteLine("Ошибка: запись пуста.");
-                    return incomes; // Завершаем метод, если запись пустая
-                }
-
-                try
-                {
-                    Income income = ChooseIncomeType(entry.Trim());
-
-                    // Проверка на корректный объект Income
-                    if (income != null && income.Date != DateTime.MinValue && !string.IsNullOrWhiteSpace(income.Source) && income.Amount > 0)
-                    {
-                        incomes.Add(income);
-                    }
-                    else
-                    {
-                        Console.WriteLine("Ошибка: запись не соответствует формату.");
-                        return incomes; // Завершаем метод, если формат записи некорректен
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Ошибка: {ex.Message}");
-                    return incomes; // Завершаем метод в случае исключения
-                }
-            }
-
-            return incomes;
-        }
-
-
-
-        private static Income ChooseIncomeType(string input)
-        {          
-            Income income;
-
-            try
-            {
-                income = new OrganizationIncome(DateTime.MinValue, "", 0, "", "").FromStr(input);
-            }
-            catch (FormatException)
-            {
-                try
-                {
-                    income = new TaxedIncome(DateTime.MinValue, "", 0, 0).FromStr(input);
-                }
-                catch (FormatException)
-                {
-                    income = new Income(DateTime.MinValue, "", 0).FromStr(input);
-                }
-            }
-
-            return income;
-        }
     }
 }
