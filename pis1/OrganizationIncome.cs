@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace pis1
 {
-    internal class OrganizationIncome : Income
+    public class OrganizationIncome : Income
     {
         public string OrganizationName { get; set; }
         public string OperationType { get; set; }

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace pis1
 {
-    internal class Income
+    public class Income
     {
         public DateTime Date { get; set; }
         public string Source { get; set; }

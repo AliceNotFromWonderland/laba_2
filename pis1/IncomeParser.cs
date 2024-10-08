@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace pis1
 {
-    internal class IncomeParser
+    public class IncomeParser
     {
         public static List<Income> ProcessEntries(string input)
         {
@@ -50,27 +50,43 @@ namespace pis1
             return incomes;
         }
 
-        private static Income ChooseIncomeType(string input)
+
+        public static Income ChooseIncomeType(string input)
         {
             Income income;
 
             try
             {
                 income = new OrganizationIncome(DateTime.MinValue, "", 0, "", "").FromStr(input);
+                return income; 
             }
-            catch (FormatException)
+            catch (FormatException ex)
             {
-                try
-                {
-                    income = new TaxedIncome(DateTime.MinValue, "", 0, 0).FromStr(input);
-                }
-                catch (FormatException)
-                {
-                    income = new Income(DateTime.MinValue, "", 0).FromStr(input);
-                }
+                Console.WriteLine($"Ошибка формата для OrganizationIncome: {ex.Message}");
             }
 
-            return income;
+            try
+            {
+                income = new TaxedIncome(DateTime.MinValue, "", 0, 0).FromStr(input);
+                return income;
+            }
+            catch (FormatException ex)
+            {
+                Console.WriteLine($"Ошибка формата для TaxedIncome: {ex.Message}");
+            }
+
+            try
+            {
+                income = new Income(DateTime.MinValue, "", 0).FromStr(input);
+                return income;
+            }
+            catch (FormatException ex)
+            {
+                Console.WriteLine($"Ошибка формата для Income: {ex.Message}");
+            }
+           
+            throw new ArgumentException("Неверный формат записи для Income.", nameof(input));
         }
+
     }
 }
