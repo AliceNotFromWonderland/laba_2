@@ -14,10 +14,9 @@ namespace pis1
         {
             string input = "2023.09.24 \"Ежемесячная стипендия\" 100000000; " +
                            "2023.09.25 \"Премия\" 5000000 \"Газпром\" \"Начисление\"; " +
-                           "2023.09.26 \"Дополнительный доход\" 2000000 13.5";          
-           
+                           "2023.09.26 \"Дополнительный доход\" 2000000 13.5";                    
 
-            List<Income> incomes = IncomeParser.ProcessEntries(input);
+            List<Income> incomes = IncomeFactory.ProcessEntries(input);
 
             foreach (var income in incomes)
             {

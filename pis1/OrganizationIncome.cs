@@ -18,11 +18,10 @@ namespace pis1
             OrganizationName = organizationName;
             OperationType = operationType;
         }
-
-        // Переопределяем FromStr для организации
+       
         public override Income FromStr(string input)
         {
-            string orgPattern = @"^([0-9]{4}\.[0-9]{2}\.[0-9]{2})\s+""(.*?)""\s+(\d+)\s+""(.*?)""\s+""(.*?)""$";
+            string orgPattern = @"^\s*([0-9]{4}\.[0-9]{2}\.[0-9]{2})\s+""(.*?)""\s+(\d+)\s+""(.*?)""\s+""(.*?)""\s*$";
             Match match = Regex.Match(input, orgPattern);
 
             if (match.Success)
@@ -33,9 +32,8 @@ namespace pis1
 
                 return new OrganizationIncome(date, source, amount, organizationName, operationType);
             }
-
-            // Если формат не соответствует, кидаем исключение
-            return base.FromStr(input); // Пробуем обработать через базовый метод
+           
+            return base.FromStr(input); 
         }
 
         public override string ToString()

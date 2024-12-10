@@ -20,11 +20,10 @@ namespace pis1
             Source = source;
             Amount = amount;
         }
-
-        // Виртуальный метод для наследников
+        
         public virtual Income FromStr(string input)
         {
-            string incomePattern = @"^([0-9]{4}\.[0-9]{2}\.[0-9]{2})\s+""(.*?)""\s+(\d+)$";
+            string incomePattern = @"^\s*([0-9]{4}\.[0-9]{2}\.[0-9]{2})\s+""(.*?)""\s+(\d+)\s*$";
             Match match = Regex.Match(input, incomePattern);
 
             if (match.Success)
@@ -32,8 +31,7 @@ namespace pis1
                 var (date, source, amount) = GetBasicDetails(match);
                 return new Income(date, source, amount);
             }
-
-            // Если формат не соответствует, кидаем исключение
+           
             throw new FormatException("Неверный формат записи для Income.");
         }
 

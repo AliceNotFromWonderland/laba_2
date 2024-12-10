@@ -3,8 +3,8 @@ using pis1;
 namespace UnitTest
 {
     public class Tests
-    {       
-
+    {
+        //Проверяет, что метод FromStr корректно разбирает строку с данными о доходе и возвращает объект Income с правильными значениями даты, источника и суммы.
         [Test]
         public void TestFromStr_ValidIncomeString_ReturnsIncomeObject()
         {
@@ -19,6 +19,7 @@ namespace UnitTest
 
         }
 
+        //Проверяет, что метод FromStr выбрасывает исключение FormatException, когда передается строка с некорректным форматом данных о доходе.
         [Test]
         public void TestFromStr_InvalidIncomeString_ThrowsFormatException()
         {
@@ -29,6 +30,7 @@ namespace UnitTest
             Assert.Throws<FormatException>(() => income.FromStr(input));
         }
 
+        //Проверяет, что метод FromStr для класса OrganizationIncome корректно разбирает строку с данными о доходе и возвращает объект OrganizationIncome с правильными значениями даты, источника, суммы, имени организации и типа операции.
         [Test]
         public void TestFromStr_ValidOrganizationIncomeString_ReturnsOrganizationIncomeObject()
         {
@@ -46,45 +48,49 @@ namespace UnitTest
 
         }
 
+        //Проверяет, что метод ChooseIncomeType возвращает объект Income при передаче корректной строки с данными о доходе.
         [Test]
         public void TestChooseIncomeType_ValidInput_ReturnsIncome()
         {
             string input = "2023.09.24 \"Ежемесячная стипендия\" 100000";
-            var result = IncomeParser.ChooseIncomeType(input);
+            var result = IncomeFactory.ChooseIncomeType(input);
 
             Assert.IsInstanceOf<Income>(result);
         }
 
+        //Проверяет, что метод ChooseIncomeType выбрасывает исключение ArgumentException, когда передается строка с некорректными данными, которые не могут быть разобраны в доход.
         [Test]
         public void TestChooseIncomeType_InvalidInput_ThrowsException()
         {
             string input = "Некорректные данные";
 
-            Assert.Throws<ArgumentException>(() => IncomeParser.ChooseIncomeType(input));
+            Assert.Throws<ArgumentException>(() => IncomeFactory.ChooseIncomeType(input));
         }
 
+        //Проверяет, что метод ProcessEntries корректно разбирает строку с несколькими записями о доходе и возвращает список из двух объектов Income или OrganizationIncome.
         [Test]
         public void TestProcessEntries_ValidInput_ReturnsListOfIncomes()
         {
             string input = "2023.09.24 \"Ежемесячная стипендия\" 100000; " +
                            "2023.09.25 \"Премия\" 5000000 \"Газпром\" \"Начисление\"";
 
-            List<Income> incomes = IncomeParser.ProcessEntries(input);
+            List<Income> incomes = IncomeFactory.ProcessEntries(input);
 
             Assert.That(incomes.Count, Is.EqualTo(2));
         }
 
+        //Проверяет, что метод ProcessEntries выводит сообщение об ошибке в консоль, когда передается некорректная строка. Также подтверждает, что список доходов остается пустым.
         [Test]
         public void TestProcessEntries_InvalidInput_OutputsErrorMessage()
         {
             string input = "Некорректные данные; ";
 
-            var sw = new StringWriter();
-            Console.SetOut(sw); // Перенаправляем вывод в StringWriter
+            var check = new StringWriter(); // StringWriter - объект, который является текстовым буфером для хранения строки.
+            Console.SetOut(check); // Перенаправляем вывод в StringWriter, а не в консольный ConcoleWriteLine  - используется для перехвата всех сообщений об ошибках или других выводах программы, которые обычно отображаются в консоли, и их проверки. Затем тест проверяет, содержит ли захваченный вывод строку "Ошибка", что подтверждает правильное поведение программы при обработке некорректных данных.
 
-            List<Income> incomes = IncomeParser.ProcessEntries(input);
+            List<Income> incomes = IncomeFactory.ProcessEntries(input);
 
-            string output = sw.ToString();
+            string output = check.ToString();
             Assert.IsTrue(output.Contains("Ошибка"));
             Assert.That(incomes.Count, Is.EqualTo(0));
         }

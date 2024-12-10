@@ -17,11 +17,10 @@ namespace pis1
         {
             TaxRate = taxRate;
         }
-
-        // Переопределяем FromStr для TaxedIncome
+       
         public override Income FromStr(string input)
         {
-            string taxPattern = @"^([0-9]{4}\.[0-9]{2}\.[0-9]{2})\s+""(.*?)""\s+(\d+)\s+(\d+\.?\d*)$";
+            string taxPattern = @"^\s*([0-9]{4}\.[0-9]{2}\.[0-9]{2})\s+""(.*?)""\s+(\d+)\s+(\d+[.,]?\d*)\s*$";
             Match match = Regex.Match(input, taxPattern);
 
             if (match.Success)
@@ -32,8 +31,7 @@ namespace pis1
                 return new TaxedIncome(date, source, amount, taxRate);
             }
 
-            // Если формат не соответствует, кидаем исключение
-            return base.FromStr(input); // Пробуем обработать через базовый метод
+            return base.FromStr(input); 
         }
 
         public double GetNetIncome()

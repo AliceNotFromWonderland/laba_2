@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace pis1
 {
-    public class IncomeParser
+    public class IncomeFactory
     {
         public static List<Income> ProcessEntries(string input)
         {
@@ -16,8 +16,6 @@ namespace pis1
             foreach (string entry in entries)
             {
                 string trimmedEntry = entry.Trim();
-
-                // Проверяем на пустую запись
                 if (string.IsNullOrWhiteSpace(trimmedEntry))
                 {
                     Console.WriteLine("Ошибка: присутствует пустая запись.");
@@ -27,12 +25,7 @@ namespace pis1
                 try
                 {
                     Income income = ChooseIncomeType(trimmedEntry);
-
-                    // Проверка на корректный объект Income
-                    if (income != null &&
-                        income.Date != DateTime.MinValue &&
-                        !string.IsNullOrWhiteSpace(income.Source) &&
-                        income.Amount > 0)
+                    if (income != null)
                     {
                         incomes.Add(income);
                     }
@@ -53,40 +46,30 @@ namespace pis1
 
         public static Income ChooseIncomeType(string input)
         {
-            Income income;
-
+            // Попытка разобрать как OrganizationIncome
             try
             {
-                income = new OrganizationIncome(DateTime.MinValue, "", 0, "", "").FromStr(input);
-                return income; 
+                return new OrganizationIncome(DateTime.MinValue, "", 0, "", "").FromStr(input);
             }
-            catch (FormatException ex)
-            {
-                Console.WriteLine($"Ошибка формата для OrganizationIncome: {ex.Message}");
-            }
+            catch (FormatException) { }
 
+            // Попытка разобрать как TaxedIncome, если предыдущая не сработала
             try
             {
-                income = new TaxedIncome(DateTime.MinValue, "", 0, 0).FromStr(input);
-                return income;
+                return new TaxedIncome(DateTime.MinValue, "", 0, 0).FromStr(input);
             }
-            catch (FormatException ex)
-            {
-                Console.WriteLine($"Ошибка формата для TaxedIncome: {ex.Message}");
-            }
+            catch (FormatException) { }
 
+            // Попытка разобрать как базовый Income, если предыдущие не сработали
             try
             {
-                income = new Income(DateTime.MinValue, "", 0).FromStr(input);
-                return income;
+                return new Income(DateTime.MinValue, "", 0).FromStr(input);
             }
-            catch (FormatException ex)
-            {
-                Console.WriteLine($"Ошибка формата для Income: {ex.Message}");
-            }
-           
+            catch (FormatException) { }
+
             throw new ArgumentException("Неверный формат записи для Income.", nameof(input));
         }
+
 
     }
 }
