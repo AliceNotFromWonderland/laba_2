@@ -11,6 +11,7 @@ namespace pis1
     {
         public string OrganizationName { get; set; }
         public string OperationType { get; set; }
+        public OrganizationIncome() { }
 
         public OrganizationIncome(DateTime date, string source, int amount, string organizationName, string operationType)
             : base(date, source, amount)
@@ -18,9 +19,10 @@ namespace pis1
             OrganizationName = organizationName;
             OperationType = operationType;
         }
-       
-        public override Income FromStr(string input)
+
+        public override bool TryParse(string input, out Income income)
         {
+            income = null;
             string orgPattern = @"^\s*([0-9]{4}\.[0-9]{2}\.[0-9]{2})\s+""(.*?)""\s+(\d+)\s+""(.*?)""\s+""(.*?)""\s*$";
             Match match = Regex.Match(input, orgPattern);
 
@@ -30,11 +32,12 @@ namespace pis1
                 string organizationName = match.Groups[4].Value;
                 string operationType = match.Groups[5].Value;
 
-                return new OrganizationIncome(date, source, amount, organizationName, operationType);
+                income = new OrganizationIncome(date, source, amount, organizationName, operationType);
+                return true;
             }
-           
-            return base.FromStr(input); 
+            return false;
         }
+
 
         public override string ToString()
         {

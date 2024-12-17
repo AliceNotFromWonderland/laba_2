@@ -13,6 +13,7 @@ namespace pis1
         public DateTime Date { get; set; }
         public string Source { get; set; }
         public int Amount { get; set; }
+        public Income() { }
 
         public Income(DateTime date, string source, int amount)
         {
@@ -20,19 +21,20 @@ namespace pis1
             Source = source;
             Amount = amount;
         }
-        
-        public virtual Income FromStr(string input)
+
+        public virtual bool TryParse(string input, out Income income)
         {
+            income = null;
             string incomePattern = @"^\s*([0-9]{4}\.[0-9]{2}\.[0-9]{2})\s+""(.*?)""\s+(\d+)\s*$";
             Match match = Regex.Match(input, incomePattern);
 
             if (match.Success)
             {
                 var (date, source, amount) = GetBasicDetails(match);
-                return new Income(date, source, amount);
+                income = new Income(date, source, amount);
+                return true;
             }
-           
-            throw new FormatException("Неверный формат записи для Income.");
+            return false;
         }
 
         protected static (DateTime date, string source, int amount) GetBasicDetails(Match match)

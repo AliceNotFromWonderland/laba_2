@@ -8,68 +8,51 @@ namespace pis1
 {
     public class IncomeFactory
     {
-        public static List<Income> ProcessEntries(string input)
+        public static (List<Income> incomes, List<string> errors) ProcessEntries(string input)
         {
             List<Income> incomes = new List<Income>();
+            List<string> errors = new List<string>();
             string[] entries = input.Split(';');
 
             foreach (string entry in entries)
             {
                 string trimmedEntry = entry.Trim();
+
                 if (string.IsNullOrWhiteSpace(trimmedEntry))
                 {
-                    Console.WriteLine("Ошибка: присутствует пустая запись.");
+                    errors.Add("Ошибка: пустая запись.");
                     continue;
                 }
-
                 try
                 {
                     Income income = ChooseIncomeType(trimmedEntry);
-                    if (income != null)
-                    {
-                        incomes.Add(income);
-                    }
-                    else
-                    {
-                        Console.WriteLine("Ошибка: запись не соответствует формату.");
-                    }
+                    incomes.Add(income);
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Ошибка: {ex.Message}");
+                    errors.Add(ex.Message);
                 }
             }
 
-            return incomes;
+            return (incomes, errors);
         }
 
 
         public static Income ChooseIncomeType(string input)
         {
-            // Попытка разобрать как OrganizationIncome
-            try
-            {
-                return new OrganizationIncome(DateTime.MinValue, "", 0, "", "").FromStr(input);
-            }
-            catch (FormatException) { }
+            Income income;
 
-            // Попытка разобрать как TaxedIncome, если предыдущая не сработала
-            try
-            {
-                return new TaxedIncome(DateTime.MinValue, "", 0, 0).FromStr(input);
-            }
-            catch (FormatException) { }
+            if (new OrganizationIncome().TryParse(input, out income))
+                return income;
 
-            // Попытка разобрать как базовый Income, если предыдущие не сработали
-            try
-            {
-                return new Income(DateTime.MinValue, "", 0).FromStr(input);
-            }
-            catch (FormatException) { }
+            if (new TaxedIncome().TryParse(input, out income))
+                return income;
 
-            throw new ArgumentException("Неверный формат записи для Income.", nameof(input));
+            if (new Income().TryParse(input, out income))
+                return income;
+
+            throw new FormatException("Запись не соответствует ни одному известному формату.");
         }
-
 
     }
 }

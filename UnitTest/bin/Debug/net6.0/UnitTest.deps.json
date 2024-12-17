@@ -319,7 +319,10 @@
       "System.Reflection.Metadata/1.6.0": {},
       "pis1/1.0.0": {
         "runtime": {
-          "pis1.exe": {}
+          "pis1.exe": {
+            "assemblyVersion": "1.0.0",
+            "fileVersion": "1.0.0.0"
+          }
         }
       }
     }

@@ -13,18 +13,25 @@ namespace pis1
         static void Main(string[] args)
         {
             string input = "2023.09.24 \"Ежемесячная стипендия\" 100000000; " +
-                           "2023.09.25 \"Премия\" 5000000 \"Газпром\" \"Начисление\"; " +
-                           "2023.09.26 \"Дополнительный доход\" 2000000 13.5";                    
+                           "2023.09.25 \"Премия\" 5000000 \"Газпром\" \"Начисление\"; " +                          
+                           "2023.09.26 \"Дополнительный доход\" 2000000 13.5; " +
+                           "54646374;" +
+                           "     ";
 
-            List<Income> incomes = IncomeFactory.ProcessEntries(input);
+            var (incomes, errors) = IncomeFactory.ProcessEntries(input);
 
             foreach (var income in incomes)
             {
                 Console.WriteLine(income);
             }
 
+            foreach (var error in errors)
+            {
+                Console.WriteLine(error);
+            }
+
             Console.ReadKey();
         }
-
     }
+
 }

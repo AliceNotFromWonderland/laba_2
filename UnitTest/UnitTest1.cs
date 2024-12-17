@@ -3,96 +3,180 @@ using pis1;
 namespace UnitTest
 {
     public class Tests
-    {
-        //Проверяет, что метод FromStr корректно разбирает строку с данными о доходе и возвращает объект Income с правильными значениями даты, источника и суммы.
+    {       
+
         [Test]
-        public void TestFromStr_ValidIncomeString_ReturnsIncomeObject()
+        public void ProcessEntries_ValidAndInvalidEntries_ShouldCategorizeCorrectly()
         {
-            string input = "2023.09.24 \"Ежемесячная стипендия\" 100000";
-            Income income = new Income(DateTime.MinValue, "", 0);
-            var result = income.FromStr(input);
+            string input = "2023.09.24 \"Ежемесячная стипендия\" 100000000; " +
+                           "2023.09.25 \"Премия\" 5000000 \"Газпром\" \"Начисление\"; " +
+                           "54646374;" +
+                           "2023.09.26 \"Дополнительный доход\" 2000000 13.5; " +
+                           "     ";
 
-            Assert.IsInstanceOf<Income>(result);
-            Assert.That(result.Date, Is.EqualTo(new DateTime(2023, 9, 24)));
-            Assert.That(result.Source, Is.EqualTo("Ежемесячная стипендия"));
-            Assert.That(result.Amount, Is.EqualTo(100000));
+            var (incomes, errors) = IncomeFactory.ProcessEntries(input);
 
+            Assert.That(incomes.Count, Is.EqualTo(3));
+            Assert.That(errors.Count, Is.EqualTo(2));
+
+            Assert.That(errors[0], Is.EqualTo("Ошибка: запись не соответствует формату: \"54646374\"."));
+            Assert.That(errors[1], Is.EqualTo("Ошибка: пустая запись."));
         }
 
-        //Проверяет, что метод FromStr выбрасывает исключение FormatException, когда передается строка с некорректным форматом данных о доходе.
         [Test]
-        public void TestFromStr_InvalidIncomeString_ThrowsFormatException()
+        public void ChooseIncomeType_ValidTaxedIncome_ShouldReturnTaxedIncome()
         {
-            string input = "Неверный формат";
+            string input = "2023.09.26 \"Дополнительный доход\" 2000000 13.5";
 
-            Income income = new Income(DateTime.MinValue, "", 0);
+            var income = IncomeFactory.ChooseIncomeType(input);
 
-            Assert.Throws<FormatException>(() => income.FromStr(input));
+            Assert.IsInstanceOf<TaxedIncome>(income);
+            Assert.That(income.Amount, Is.EqualTo(2000000));
         }
 
-        //Проверяет, что метод FromStr для класса OrganizationIncome корректно разбирает строку с данными о доходе и возвращает объект OrganizationIncome с правильными значениями даты, источника, суммы, имени организации и типа операции.
         [Test]
-        public void TestFromStr_ValidOrganizationIncomeString_ReturnsOrganizationIncomeObject()
+        public void ChooseIncomeType_ValidOrganizationIncome_ShouldReturnOrganizationIncome()
         {
             string input = "2023.09.25 \"Премия\" 5000000 \"Газпром\" \"Начисление\"";
-            OrganizationIncome orgIncome = new OrganizationIncome(DateTime.MinValue, "", 0, "", "");
 
-            var result = orgIncome.FromStr(input);
+            var income = IncomeFactory.ChooseIncomeType(input);
 
-            Assert.IsInstanceOf<OrganizationIncome>(result);
-            Assert.That(result.Date, Is.EqualTo(new DateTime(2023, 9, 25)));
-            Assert.That(result.Source, Is.EqualTo("Премия"));
-            Assert.That(result.Amount, Is.EqualTo(5000000));
-            Assert.That(((OrganizationIncome)result).OrganizationName, Is.EqualTo("Газпром"));
-            Assert.That(((OrganizationIncome)result).OperationType, Is.EqualTo("Начисление"));
-
+            Assert.IsInstanceOf<OrganizationIncome>(income);
+            Assert.That(((OrganizationIncome)income).OrganizationName, Is.EqualTo("Газпром"));
         }
 
-        //Проверяет, что метод ChooseIncomeType возвращает объект Income при передаче корректной строки с данными о доходе.
         [Test]
-        public void TestChooseIncomeType_ValidInput_ReturnsIncome()
+        public void ChooseIncomeType_InvalidFormat_ShouldReturnNull()
         {
-            string input = "2023.09.24 \"Ежемесячная стипендия\" 100000";
-            var result = IncomeFactory.ChooseIncomeType(input);
+            string input = "Некорректный формат записи";
 
-            Assert.IsInstanceOf<Income>(result);
+            var income = IncomeFactory.ChooseIncomeType(input);
+
+            Assert.IsNull(income);
         }
 
-        //Проверяет, что метод ChooseIncomeType выбрасывает исключение ArgumentException, когда передается строка с некорректными данными, которые не могут быть разобраны в доход.
         [Test]
-        public void TestChooseIncomeType_InvalidInput_ThrowsException()
+        public void TryParse_ValidInput_ShouldParseSuccessfully()
         {
-            string input = "Некорректные данные";
+            string input = "2023.09.25 \"Премия\" 5000000";
+            var income = new Income();
 
-            Assert.Throws<ArgumentException>(() => IncomeFactory.ChooseIncomeType(input));
+            bool result = income.TryParse(input, out Income parsedIncome);
+
+            Assert.IsTrue(result);
+            Assert.IsNotNull(parsedIncome);
+            Assert.That(parsedIncome.Date, Is.EqualTo(new DateTime(2023, 9, 25)));
+            Assert.That(parsedIncome.Source, Is.EqualTo("Премия"));
+            Assert.That(parsedIncome.Amount, Is.EqualTo(5000000));
         }
 
-        //Проверяет, что метод ProcessEntries корректно разбирает строку с несколькими записями о доходе и возвращает список из двух объектов Income или OrganizationIncome.
         [Test]
-        public void TestProcessEntries_ValidInput_ReturnsListOfIncomes()
+        public void TryParse_InvalidInput_ShouldReturnFalse()
         {
-            string input = "2023.09.24 \"Ежемесячная стипендия\" 100000; " +
-                           "2023.09.25 \"Премия\" 5000000 \"Газпром\" \"Начисление\"";
+            string input = "Некорректный формат записи";
+            var income = new Income();
 
-            List<Income> incomes = IncomeFactory.ProcessEntries(input);
+            bool result = income.TryParse(input, out Income parsedIncome);
 
-            Assert.That(incomes.Count, Is.EqualTo(2));
+            Assert.IsFalse(result);
+            Assert.IsNull(parsedIncome);
         }
 
-        //Проверяет, что метод ProcessEntries выводит сообщение об ошибке в консоль, когда передается некорректная строка. Также подтверждает, что список доходов остается пустым.
         [Test]
-        public void TestProcessEntries_InvalidInput_OutputsErrorMessage()
+        public void TryParse_EmptyInput_ShouldReturnFalse()
         {
-            string input = "Некорректные данные; ";
+            string input = "";
+            var income = new Income();
 
-            var check = new StringWriter(); // StringWriter - объект, который является текстовым буфером для хранения строки.
-            Console.SetOut(check); // Перенаправляем вывод в StringWriter, а не в консольный ConcoleWriteLine  - используется для перехвата всех сообщений об ошибках или других выводах программы, которые обычно отображаются в консоли, и их проверки. Затем тест проверяет, содержит ли захваченный вывод строку "Ошибка", что подтверждает правильное поведение программы при обработке некорректных данных.
+            bool result = income.TryParse(input, out Income parsedIncome);
 
-            List<Income> incomes = IncomeFactory.ProcessEntries(input);
-
-            string output = check.ToString();
-            Assert.IsTrue(output.Contains("Ошибка"));
-            Assert.That(incomes.Count, Is.EqualTo(0));
+            Assert.IsFalse(result);
+            Assert.IsNull(parsedIncome);
         }
+
+        [Test]
+        public void TryParse_InvalidDate_ShouldReturnFalse()
+        {
+            string input = "2023-09-25 \"Премия\" 5000000";
+            var income = new Income();
+
+            bool result = income.TryParse(input, out Income parsedIncome);
+
+            Assert.IsFalse(result);
+            Assert.IsNull(parsedIncome);
+        }
+        [Test]
+        public void Income_ToString_ShouldReturnFormattedString()
+        {
+            var income = new Income
+            {
+                Date = new DateTime(2023, 9, 24),
+                Source = "Ежемесячная стипендия",
+                Amount = 100000
+            };
+
+            var result = income.ToString();
+
+            Assert.That(result, Is.EqualTo("Дата: 2023.09.24, Источник: Ежемесячная стипендия, Сумма: 100000"));
+        }
+
+        [Test]
+        public void OrganizationIncome_ToString_ShouldIncludeOrganizationDetails()
+        {
+            var orgIncome = new OrganizationIncome
+            {
+                Date = new DateTime(2023, 9, 25),
+                Source = "Премия",
+                Amount = 50000,
+                OrganizationName = "Газпром",
+                OperationType = "Начисление"
+            };
+
+            var result = orgIncome.ToString();
+
+            Assert.That(result, Is.EqualTo("Дата: 2023.09.25, Источник: Премия, Сумма: 50000, Организация: Газпром, Тип операции: Начисление"));
+        }
+
+        [Test]
+        public void TaxedIncome_ToString_ShouldIncludeTaxDetails()
+        {
+            var taxedIncome = new TaxedIncome
+            {
+                Date = new DateTime(2023, 9, 26),
+                Source = "Дополнительный доход",
+                Amount = 20000,
+                TaxRate = 13.5
+            };
+
+            var result = taxedIncome.ToString();
+
+            var expectedNetIncome = taxedIncome.Amount - (taxedIncome.Amount * taxedIncome.TaxRate / 100);
+            Assert.That(result, Is.EqualTo($"Дата: 2023.09.26, Источник: Дополнительный доход, Сумма: 20000, Налоговая ставка: 13,5%, Доход после налогообложения: {expectedNetIncome}"));
+        }
+
+        [Test]
+        public void TaxedIncome_GetNetIncome_ShouldCalculateCorrectly()
+        {
+            var taxedIncome = new TaxedIncome
+            {
+                Amount = 20000,
+                TaxRate = 13.5
+            };
+
+            var netIncome = taxedIncome.GetNetIncome();
+
+            Assert.That(netIncome, Is.EqualTo(20000 - (20000 * 13.5 / 100)));
+        }
+        [Test]
+        public void ProcessEntries_InvalidEntry_ShouldCatchExceptionAndAddToErrors()
+        {
+            string input = "Некорректная запись";
+
+            var (_, errors) = IncomeFactory.ProcessEntries(input);
+
+            Assert.That(errors.Count, Is.EqualTo(1), "Список ошибок должен содержать одну запись.");
+            StringAssert.Contains("Запись не соответствует ни одному известному формату", errors[0], "Сообщение об ошибке некорректно.");
+        }
+
     }
 }

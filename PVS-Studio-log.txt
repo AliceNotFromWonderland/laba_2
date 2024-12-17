@@ -1,0 +1,2 @@
+===============Fail===============
+ (0): error Renew: Your license will expire in 8 days. Click 'Renew' to learn more or contact us via Feedback form on our website. This is an information message. You can continue using the analyzer with your current license. To hide this message, use the '--disableLicenseExpirationCheck' flag.
